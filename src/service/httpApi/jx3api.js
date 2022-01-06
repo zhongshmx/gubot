@@ -4,7 +4,7 @@ class Jx3api{
     static apiDisplayName = 'JX3API';
 
     static async strengthen(xf) {
-        let response = await $jx3api.get('/strengthen', {params:{
+        let response = await $jx3api.get('/app/strengthen', {params:{
             name: xf || "冰心诀"
         }});
         if(response.data.code == 200) {
@@ -21,7 +21,7 @@ class Jx3api{
     }
 
     static async gest(xf) {
-        let response = await $jx3api.get('/gest', {params:{
+        let response = await $jx3api.get('/app/gest', {params:{
             name: xf || "冰心诀"
         }});
         if(response.data.code == 200) {
@@ -34,7 +34,7 @@ class Jx3api{
                 二重略懂: data.descs[1].desc,
                 三重巧熟: data.descs[2].desc,
                 四重精妙: data.descs[3].desc,
-                五重游刃: data.descs[4].desc, 
+                五重游刃: data.descs[4].desc,
                 六重忘我: data.descs[5].desc,
                 七重归一: '空'
             }
@@ -44,7 +44,7 @@ class Jx3api{
     }
 
     static async travel(map) {
-        let response = await $jx3api.get('/travel', {params:{
+        let response = await $jx3api.get('/app/travel', {params:{
             map: map || "七秀"
         }});
         if(response.data.code == 200) {
@@ -76,7 +76,7 @@ class Jx3api{
     }
 
     static async saohua() {
-        let response = await $jx3api.get('/random');
+        let response = await $jx3api.get('/app/random');
         if(response.data.code == 200) {
             let result = response.data.data.text;
             return result;
@@ -86,7 +86,7 @@ class Jx3api{
     }
 
     static async daily(server) {
-        let response = await $jx3api.get('/daily', {params:{
+        let response = await $jx3api.get('/app/daily', {params:{
             server: server || "唯我独尊",
         }});
         if(response.data.code == 200) {
@@ -103,14 +103,14 @@ class Jx3api{
                 周常十人本: data.WeekTeam,
                 周公共日常: data.WeekCommon
             };
-            return result; 
+            return result;
         }else{
             throw `错误：[${Jx3api.apiDisplayName}]的接口[daily]返回值异常，请检查参数。`;
         }
     }
 
     static async gold(server){
-        let response = await $jx3api.get('/gold', {params:{
+        let response = await $jx3api.get('/app/gold', {params:{
             server: server || "唯我独尊",
         }});
         if(response.data.code == 200) {
@@ -130,7 +130,7 @@ class Jx3api{
     }
 
     static async furniture(name) {
-        let response = await $jx3api.get(`/furniture`, {params:{
+        let response = await $jx3api.get(`/app/furniture`, {params:{
             name: name
         }});
         if (response.data.code == 200) {
@@ -153,8 +153,31 @@ class Jx3api{
         }
     }
 
+    static async equips(params) {
+        let response = await $jx3api.get(`/item/equips`, {params:params});
+        if (response.data.code == 200) {
+            let data = response.data.data;
+            console.log('data', data);
+            return {
+                name: data.name,
+                geomantic: data.geomanticScore,
+                hard: data.hardScore,
+                view: data.viewScore,
+                practical: data.practicalScore,
+                interesting: data.interestingScore,
+                source: data.source,
+                quality: data.quality,
+                levelLimit: data.levelLimit,
+                image_url: data.imagePath,
+                tip: data.tip.replace(/\n/g, '<br />')
+            };
+        } else {
+            throw `错误：[${Jx3api.apiDisplayName}]的接口[serendipity]返回异常，请检查参数`;
+        }
+    }
+
     static async macro(name) {
-        let response = await $jx3api.get('/macro', {params:{
+        let response = await $jx3api.get('/app/macro', {params:{
             name: name
         }});
         let data = response.data;
@@ -171,7 +194,7 @@ class Jx3api{
     }
 
     static async seniority(params) {
-        let response = await $jx3api.get(`/seniority`, {params: params});
+        let response = await $jx3api.get(`/app/seniority`, {params: params});
         if (response.data.code == 200) {
             return response.data.data.map((data) => ({
                 avatar: `${__dirname}/../../assets/images/school/${data.sect}.png`,

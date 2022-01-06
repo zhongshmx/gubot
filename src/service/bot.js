@@ -6,7 +6,6 @@ class Bot{
         this.ENV = ENV;
     }
 
-
     log(message, type) {
         type = type || 'info';
         let msg = `[${moment().locale('zh-cn').format('YYYY-MM-DD HH:mm:ss')}][${type.toUpperCase().padStart(7)}] ${message}`;
@@ -67,7 +66,7 @@ class Bot{
         if(enable) {
             const ImageGenerator = require('./imageGenerator');
             const puppeteer = require('puppeteer');
-            const browser = await puppeteer.launch();
+            const browser = await puppeteer.launch(this.ENV.puppeteer);
             this.imageGenerator = new ImageGenerator(browser);
         }else{
             this.imageGenerator = new Proxy({}, {
@@ -103,7 +102,7 @@ class Bot{
         this.jx3api_ws.handleMessageStack.push(async (message) => {
             message = JSON.parse(message);
             if(message.type == 2001 && message.data.status == 1) {
-                let broadcast_msg = `咕咕咕！[${message.data.server}]开服啦！`;
+                let broadcast_msg = `汪汪汪！[${message.data.server}]开服啦！`;
                 for(let cqhttp of bot.cqhttps){
                     let groups = await cqhttp.getGroupList();
                     for(let group of groups) {
@@ -114,7 +113,7 @@ class Bot{
                 }
             }
             if(message.type == 2002) {
-                let broadcast_msg = `咕咕咕！[${message.data.date}]有新的[${message.data.type}]请查收！\n标题：${message.data.title}\n链接：${message.data.url}`;
+                let broadcast_msg = `汪汪汪！[${message.data.date}]有新的[${message.data.type}]请查收！\n标题：${message.data.title}\n链接：${message.data.url}`;
                 for(let cqhttp of bot.cqhttps){
                     let groups = await cqhttp.getGroupList();
                     for(let group of groups) {
@@ -125,14 +124,46 @@ class Bot{
                 }
             }
             if(message.type == 2003) {
-                let broadcast_msg = `咕咕咕！${message.data.serendipity} 被 ${message.data.name} 抱回家啦~`;
+                let broadcast_msg = `汪汪汪！${message.data.serendipity} 被 ${message.data.name} 抱回家啦~`;
                 for(let cqhttp of bot.cqhttps){
                     let groups = await cqhttp.getGroupList();
                     for(let group of groups) {
                         if(group.serendipity_broadcast && group.server == message.data.server){
-                            if (!group.group_serendipity_broadcast || (group.group_serendipity_broadcast && group.members.indexOf(message.data.name) > -1)) {
+                            if (!group.group_serendipity_broadcast || (group.group_serendipity_broadcast && group.members.split(',').indexOf(message.data.name) > -1)) {
                                 cqhttp.sendGroupMessage(broadcast_msg, group.group_id);
                             }
+                        }
+                    }
+                }
+            }
+        })
+    }
+
+    async initJx3mmWebsocketApi() {
+        const Jx3mm = require('./wsApi/jx3mm');
+        this.jx3mm_ws = new Jx3mm(this.ENV, 'JX3MM_Websocket');
+        let bot = this;
+        this.jx3mm_ws.handleMessageStack.push(async (m) => {
+            console.log('message', m);
+            if (m != '1') {
+                const message = m.split('\t');
+                if (message[0] == 'CH') {
+                    if (message[3] == '黑龙沼') {
+                        let msg = `咕咕咕！${moment(parseInt(message[4], 10) * 1000).format('HH:mm:ss')} 在 ${message[3]} 刷马啦~`;
+                        for(let cqhttp of bot.cqhttps){
+                            let groups = await cqhttp.getGroupList();
+                            for(let group of groups) {
+                                cqhttp.sendGroupMessage(msg, group.group_id);
+                            }
+                        }
+                    }
+                }
+                if (message[0] == 'FY') {
+                    let msg = `咕咕咕！${moment(parseInt(message[3], 10) * 1000).format('HH:mm:ss')} 开扶摇啦~`;
+                    for(let cqhttp of bot.cqhttps){
+                        let groups = await cqhttp.getGroupList();
+                        for(let group of groups) {
+                            cqhttp.sendGroupMessage(msg, group.group_id);
                         }
                     }
                 }
@@ -326,7 +357,11 @@ class Bot{
             '^(取消报名)\\s?([\\S\\s]*)': '/team cancel $2',
             '^(团队报名)\\s?([\\S\\s]+)': '/team apply $2',
 
+            '^属性$': '/equips $1',
+
+            '^查询记录$': '/sign list',
             '^添加记录\\s(\\S*)$': '/sign add $1',
+            '^查询记录\\s(\\S*)$': '/sign list $1',
             '^删除记录\\s(\\S*)$': '/sign delete $1',
 
             '^添加别名\\s([\\S\\s]+)': '/alias add $1',

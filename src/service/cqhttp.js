@@ -85,6 +85,10 @@ class CqHttp{
     static imageCQCode(file) {
         return `[CQ:image,file=${url.pathToFileURL(file)}]`;
     }
+
+    static recordCQCode(file) {
+        return `[CQ:record,file=${url.pathToFileURL(file)}]`;
+    }
 }
 
 module.exports = CqHttp;

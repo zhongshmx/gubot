@@ -9,6 +9,7 @@ module.exports = class AchievementHandler {
         let result = await bot.redis.get(redis_key);
         if (result == null) {
             let id = await Jx3box.achievementSearch(args.achievement);
+            console.log(id)
             let post = (await Jx3box.achievementPost(id)).data.post;
             let updated_at = moment(post.updated * 1000).locale('zh-cn').format('YYYY-MM-DD HH:mm:ss');
             let image = await bot.imageGenerator.generateFromHtml(post.content);

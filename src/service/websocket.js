@@ -1,7 +1,10 @@
 const Ws = require('ws');
 const uuid = require('uuid').v4;
 
+// process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+
 class Websocket{
+    handleOpen = [];
     handleMessageStack = [];
     requestWaiting = {};
 
@@ -30,6 +33,16 @@ class Websocket{
 
     onOpen() {
         bot.log(`Websocket: ws [${this.name}] connected.`, 'success');
+        for(let handle of this.handleOpen) {
+            try{
+                handle();
+            }catch(e){
+                if(typeof e == 'object') {
+                    bot.log(message, 'error');
+                    bot.log(e.stack || e, 'error');
+                }
+            }
+        }
     }
     onClose(code, reason) {
         this.init();
@@ -38,7 +51,7 @@ class Websocket{
     onError(error) {
         bot.log(`Websocket: ws [${this.name}] error. \n    message: ${error}`, 'error');
     }
-    
+
     onMessage(message) {
         for(let id in this.requestWaiting){
             let waiting = this.requestWaiting[id];

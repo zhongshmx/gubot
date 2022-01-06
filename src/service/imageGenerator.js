@@ -13,7 +13,7 @@ class ImageGenerator {
         artTemplate.defaults.imports.btoa = (str) => Buffer.from(str).toString('base64');
         artTemplate.defaults.imports.JSON = JSON;
     }
-    
+
     async generateFromHtmlFile(htmlname, options){
         options = options || {};
         let configs = {
@@ -23,7 +23,7 @@ class ImageGenerator {
         let url = `file://${htmlname}`;
         const page = await this.puppeteer.newPage();
         await page.setViewport({
-            width: configs['size'][0], 
+            width: configs['size'][0],
             height: configs['size'][1]
         });
         await page.setDefaultNavigationTimeout(0)
@@ -126,7 +126,7 @@ class ImageGenerator {
         }
         return await this.generateFromMarkdown(markdown, options);
     }
-    
+
     async getFromUrl(url, options){
         options = options || {};
         let configs = {
@@ -137,7 +137,7 @@ class ImageGenerator {
         const page = await this.puppeteer.newPage();
         if(!configs['selector']){
             await page.setViewport({
-                width: configs['size'][0], 
+                width: configs['size'][0],
                 height: configs['size'][1]
             });
         }
